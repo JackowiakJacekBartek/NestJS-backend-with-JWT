@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Player } from './interfaces/player.interface';
+import { Player } from 'src/common/interfaces/player.interface';
+
 
 @Injectable()
-export class AppService {
+export class PlayerService {
   players: Player[] = [
     { name: 'Lionel', surname: 'Messi', age: 34 },
     { name: 'Cristiano', surname: 'Ronaldo', age: 37 },
