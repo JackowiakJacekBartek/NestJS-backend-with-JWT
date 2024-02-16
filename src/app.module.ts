@@ -1,11 +1,20 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { LoggerMiddleware } from './common/logger/logger.middleware';
-import { PlayerModule } from './player/player.module';
+import { PlayerModule } from './modules/player/player.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './user/user.module';
+import { UserModule } from './modules/user/user.module';
 import { User } from './common/entity/user.entity';
+import { AuthModule } from './modules/auth/auth.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { RemovePasswordInterceptor } from './common/interceptors/removePasswordInterceptor';
 
 @Module({
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: RemovePasswordInterceptor,
+    },
+  ],
   imports: [
     PlayerModule,
     UserModule,
@@ -22,6 +31,7 @@ import { User } from './common/entity/user.entity';
         trustServerCertificate: true, //bez tego nie chciał się połączyć
       }
     }),
+    AuthModule,
   ],
 })
 export class AppModule implements NestModule {
