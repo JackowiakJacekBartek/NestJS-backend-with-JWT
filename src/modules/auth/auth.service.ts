@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterUserDto } from 'src/common/dto/registerUserDto';
 import { UserService } from 'src/modules/user/user.service';
@@ -12,20 +16,29 @@ export class AuthService {
   ) {}
 
   async register(registerUserDto: RegisterUserDto) {
-    
+    const user = await this.userService.findByEmail(registerUserDto.email);
+    if (user) {
+      throw new UnauthorizedException();
+      //throw new ConflictException('User already exists');
+    }
+
     //hashowanie hasła
-    const salt = bcrypt.genSaltSync(10)
-    const password = bcrypt.hashSync(registerUserDto.password, salt)
+    const salt = bcrypt.genSaltSync(10);
+    const password = bcrypt.hashSync(registerUserDto.password, salt);
     registerUserDto.password = password;
 
-    return this.userService.saveUser(registerUserDto)
+    return this.userService.saveUser(registerUserDto);
   }
 
-  async signIn(username: string, pass: string): Promise<{access_token: string}> {
-    const user = await this.userService.findByEmail(username);
+  async signIn(email: string, pass: string): Promise<{ access_token: string }> {
+    const user = await this.userService.findByEmail(email);
 
-    console.log(user.password)
-    console.log(pass)
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    //console.log(user.password)
+    //console.log(pass)
 
     //porownanie hasla plain text z zahashowanym
     if (!bcrypt.compareSync(pass, user.password)) {
@@ -36,6 +49,7 @@ export class AuthService {
     //zbiera resztę właściwości do nowego obiektu o nazwie result
     // const { password, ...result } = user;
 
+    //generuje accesstoken
     const payload = { sub: user.id, username: user.email };
     return {
       access_token: await this.jwtService.signAsync(payload),
