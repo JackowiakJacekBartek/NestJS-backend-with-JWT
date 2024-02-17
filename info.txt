@@ -1,0 +1,12 @@
+nest g middleware logger
+nest g guard auth
+
+nest g module player
+nest g controller player
+nest g service player
+
+npm run start:dev
+npm test
+
+
+nest g res users --no-spec
