@@ -1,8 +1,20 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards, ValidationPipe, Request } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+  ValidationPipe,
+  Request,
+  Res,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from 'src/common/dto/loginUserDto';
 import { RegisterUserDto } from 'src/common/dto/registerUserDto';
 import { AuthGuard } from '@nestjs/passport';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -14,10 +26,37 @@ export class AuthController {
     return this.authService.register(registerUserDto);
   }
 
-  @UseGuards(AuthGuard('local'))
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body(new ValidationPipe()) loginUserDto: LoginUserDto) {
-    return this.authService.signIn(loginUserDto.email, loginUserDto.password);
+  async signIn(
+    @Res({ passthrough: true }) res: Response,
+    @Body(new ValidationPipe()) loginUserDto: LoginUserDto,
+  ) {
+    const { access_token, refresh_token } = await this.authService.signIn(
+      loginUserDto.email,
+      loginUserDto.password,
+    );
+
+    res.cookie('refreshToken', refresh_token, {
+      secure: true,
+      httpOnly: true,
+      sameSite: true,
+    });
+    return { accesstoken: access_token };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh-token')
+  async refreshToken(
+    @Res({ passthrough: true }) res: Response,
+    @Body() response){
+    const tokens = await this.authService.refreshToken(response.refreshtoken);
+
+    res.cookie('refreshToken', tokens.newRefreshToken, {
+      secure: true,
+      httpOnly: true,
+      sameSite: true,
+    });
+    return { accesstoken: tokens.newAccessToken };
   }
 }

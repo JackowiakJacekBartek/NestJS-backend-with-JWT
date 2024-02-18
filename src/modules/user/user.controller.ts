@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, Request, U
 import { UserService } from './user.service';
 import { UpdateUserDto } from 'src/common/dto/updateUserDto';
 import { AuthGuard } from '@nestjs/passport';
+import { AuthGuardAccessToken } from 'src/common/auth/auth.guardaccesstoken';
 
 @Controller('users')
 export class UserController {
@@ -18,14 +19,15 @@ export class UserController {
   //   return this.userService.getAllUsers();
   // }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuardAccessToken)
   @Post(':id') 
   UpdateUserById(
     @Request() req,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto){
+      
       // Sprawdź, czy identyfikator użytkownika w żądaniu jest zgodny z identyfikatorem użytkownika w tokenu JWT
-      if (req.user.userId !== id) {
+      if (req.user.id !== id) {
         throw new UnauthorizedException();
       }
     
@@ -33,7 +35,7 @@ export class UserController {
       return this.userService.updateUserById(id, updateUserDto);
     }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuardAccessToken)
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;

@@ -7,15 +7,21 @@ import { jwtConstants } from './constants';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
+import { RefreshToken } from 'src/common/entity/refreshtokens';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [UserModule, PassportModule,
+  imports: [
+    TypeOrmModule.forFeature([RefreshToken]),
+    UserModule,
+    PassportModule,
     JwtModule.register({
       global: true,
-      secret: jwtConstants.secret,
+      secret: jwtConstants.secretAccessToken,
       signOptions: { expiresIn: '60s' },
-    }),],
+    }),
+  ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy]
+  providers: [AuthService],
 })
 export class AuthModule {}

@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/common/entity/user.entity';
+import { User } from 'src/common/entity/users.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from 'src/common/dto/createUserDto';
 import { UpdateUserDto } from 'src/common/dto/updateUserDto';
@@ -24,6 +24,12 @@ export class UserService {
     return this.userRepository.find();
   }
 
+  async findUserById(id: number) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    const { password, ...result } = user;
+    return result;
+  }
+
   async updateUserById(id: number, user: Partial<UpdateUserDto>) {
     const existingUser = await this.userRepository.findOne({ where: { id } });
     if (existingUser) {
@@ -36,5 +42,5 @@ export class UserService {
     } else {
       throw new NotFoundException();
     }
-  } 
+  }
 }
