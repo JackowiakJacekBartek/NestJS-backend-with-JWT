@@ -8,8 +8,6 @@ import { JwtService } from '@nestjs/jwt';
 import { RegisterUserDto } from 'src/common/dto/registerUserDto';
 import { UserService } from 'src/modules/user/user.service';
 import * as bcrypt from 'bcrypt';
-import { Response } from 'express';
-import { User } from 'src/common/entity/users.entity';
 import { randomUUID } from 'crypto';
 import { RefreshToken } from 'src/common/entity/refreshtokens';
 import { Repository } from 'typeorm';
@@ -97,11 +95,13 @@ export class AuthService {
       }
 
       const userByRefreshToken = await this.tokenRepository.findOne({ where: { refreshToken: refreshToken } });
+
+      //sprawdzic czy refreshtoken znajduje sie w bazie jak nie to break
       if(!userByRefreshToken){
         throw new UnauthorizedException();
       }
+      
       const user = await this.userService.findUserById(userByRefreshToken.idUser)
-      //sprawdzic czy refreshtoken znajduje sie w bazie jak nie to break
       //jak znajduje sie w bazie to wygenerowac nowy accesstoken i refreshtoken i nadpisac refreshtoken w bazie - zeby nie mozna bylo 2 raz go uzyc.
 
       this.tokenRepository.delete(userByRefreshToken);

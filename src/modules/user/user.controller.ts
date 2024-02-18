@@ -20,19 +20,18 @@ export class UserController {
   // }
 
   @UseGuards(AuthGuardAccessToken)
-  @Post(':id') 
+  @Post('update-profile') 
   UpdateUserById(
     @Request() req,
-    @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto){
       
       // Sprawdź, czy identyfikator użytkownika w żądaniu jest zgodny z identyfikatorem użytkownika w tokenu JWT
-      if (req.user.id !== id) {
-        throw new UnauthorizedException();
-      }
+      // if (req.user.id !== id) {
+      //   throw new UnauthorizedException();
+      // }
     
       // Jeśli identyfikatory są zgodne, można wywołać metodę serwisu do aktualizacji użytkownika
-      return this.userService.updateUserById(id, updateUserDto);
+      return this.userService.updateUserById(req.user.id, updateUserDto);
     }
 
   @UseGuards(AuthGuardAccessToken)
