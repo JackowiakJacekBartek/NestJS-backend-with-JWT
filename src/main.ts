@@ -1,12 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { AuthGuard } from './common/auth/auth.guard';
+import { AuthGuardApi } from './common/auth/auth.guardapi';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   //Aktywacja guarda
-  //app.useGlobalGuards(new AuthGuard)
+  //app.useGlobalGuards(new AuthGuardApi)
 
   await app.listen(3000);
 }

@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, Request, UnauthorizedException } from '@nestjs/common';
 import { UserService } from './user.service';
-import { AuthGuard } from 'src/modules/auth/auth.guard';
 import { UpdateUserDto } from 'src/common/dto/updateUserDto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 export class UserController {
@@ -12,16 +12,30 @@ export class UserController {
   //   return this.userService.saveUser(createUserDto);
   // }
 
-  @UseGuards(AuthGuard)
-  @Get('all')
-  getAllUsers() {
-    return this.userService.getAllUsers();
-  }
+  // @UseGuards(AuthGuard)
+  // @Get('all')
+  // getAllUsers() {
+  //   return this.userService.getAllUsers();
+  // }
 
+  @UseGuards(AuthGuard('jwt'))
   @Post(':id') 
   UpdateUserById(
+    @Request() req,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto){
-    return this.userService.updateUserById(id, updateUserDto);
+      // Sprawdź, czy identyfikator użytkownika w żądaniu jest zgodny z identyfikatorem użytkownika w tokenu JWT
+      if (req.user.userId !== id) {
+        throw new UnauthorizedException();
+      }
+    
+      // Jeśli identyfikatory są zgodne, można wywołać metodę serwisu do aktualizacji użytkownika
+      return this.userService.updateUserById(id, updateUserDto);
+    }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('profile')
+  getProfile(@Request() req) {
+    return req.user;
   }
 }

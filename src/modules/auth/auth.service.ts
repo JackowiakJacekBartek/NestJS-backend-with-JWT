@@ -33,18 +33,6 @@ export class AuthService {
   async signIn(email: string, pass: string): Promise<{ access_token: string }> {
     const user = await this.userService.findByEmail(email);
 
-    if (!user) {
-      throw new UnauthorizedException();
-    }
-
-    //console.log(user.password)
-    //console.log(pass)
-
-    //porownanie hasla plain text z zahashowanym
-    if (!bcrypt.compareSync(pass, user.password)) {
-      throw new UnauthorizedException();
-    }
-
     //Wyodrębnia ona właściwości z obiektu user. Konkretnie, wyodrębnia właściwość password i
     //zbiera resztę właściwości do nowego obiektu o nazwie result
     // const { password, ...result } = user;
@@ -54,5 +42,14 @@ export class AuthService {
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
+  }
+
+  async validateUser(email: string, pass: string): Promise<any> {
+    const user = await this.userService.findByEmail(email);
+    if (user && bcrypt.compareSync(pass, user.password)) {
+      const { password, ...result } = user;
+      return result;
+    }
+    return null;
   }
 }
