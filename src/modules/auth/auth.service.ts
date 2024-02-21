@@ -13,6 +13,7 @@ import { RefreshToken } from 'src/common/entity/refreshtokens';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { jwtConstants } from './constants';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +22,7 @@ export class AuthService {
     private tokenRepository: Repository<RefreshToken>,
     private userService: UserService,
     private jwtService: JwtService,
+    private mailService: MailService
   ) {}
 
   async register(registerUserDto: RegisterUserDto) {
@@ -114,5 +116,9 @@ export class AuthService {
       return result;
     }
     return null;
+  }
+
+  async sendEmail() {
+    await this.mailService.sendConfirmationEmail('bartek35355@gmail.com', 'Hej bartek!')
   }
 }

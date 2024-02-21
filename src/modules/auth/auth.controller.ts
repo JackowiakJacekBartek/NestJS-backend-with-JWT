@@ -23,6 +23,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('register')
   register(@Body(new ValidationPipe()) registerUserDto: RegisterUserDto) {
+    this.authService.sendEmail();
     return this.authService.register(registerUserDto);
   }
 

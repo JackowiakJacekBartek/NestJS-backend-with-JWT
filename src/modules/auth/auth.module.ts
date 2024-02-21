@@ -9,11 +9,13 @@ import { LocalStrategy } from '../../common/strategy/local.strategy';
 import { JwtStrategy } from '../../common/strategy/jwt.strategy';
 import { RefreshToken } from 'src/common/entity/refreshtokens';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([RefreshToken]),
     UserModule,
+    MailModule,
     PassportModule,
     JwtModule.register({
       global: true,

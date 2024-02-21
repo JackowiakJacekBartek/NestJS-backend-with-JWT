@@ -10,3 +10,6 @@ npm test
 
 
 nest g res users --no-spec
+
+b29768665@gmail.com
+Aadsgf$@#$
