@@ -32,17 +32,17 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @Body(new ValidationPipe()) loginUserDto: LoginUserDto,
   ) {
-    const { access_token, refresh_token } = await this.authService.signIn(
+    const tokens = await this.authService.signIn(
       loginUserDto.email,
       loginUserDto.password,
     );
 
-    res.cookie('refreshToken', refresh_token, {
+    res.cookie('refreshToken', tokens.refrestoken, {
       secure: true,
       httpOnly: true,
       sameSite: true,
     });
-    return { accesstoken: access_token };
+    return { accesstoken: tokens.accesstoken };
   }
 
   @HttpCode(HttpStatus.OK)

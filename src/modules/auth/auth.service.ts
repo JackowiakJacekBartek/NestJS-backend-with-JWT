@@ -50,13 +50,10 @@ export class AuthService {
     // const { password, ...result } = user;
 
     //generuje accesstoken
-    const accessToken = await this.generateAccessToken(user.id, user.email);
-    const refreshToken = await this.generateRefreshToken(user.id);
+    const accesstoken = await this.generateAccessToken(user.id, user.email);
+    const refrestoken = await this.generateRefreshToken(user.id);
 
-    return {
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    };
+    return { accesstoken, refrestoken };
   }
 
   private async generateAccessToken(id: number, email: string): Promise<string> {
