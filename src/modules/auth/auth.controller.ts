@@ -7,14 +7,18 @@ import {
   Post,
   UseGuards,
   ValidationPipe,
-  Request,
   Res,
+  Param,
+  ParseIntPipe,
+  Req,
+  Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from 'src/common/dto/loginUserDto';
 import { RegisterUserDto } from 'src/common/dto/registerUserDto';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -22,9 +26,11 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('register')
-  register(@Body(new ValidationPipe()) registerUserDto: RegisterUserDto) {
-    this.authService.sendEmail();
-    return this.authService.register(registerUserDto);
+  register(
+    @Body(new ValidationPipe()) registerUserDto: RegisterUserDto,
+    @Req() request: Request,
+  ) {
+    return this.authService.register(registerUserDto, request);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -50,7 +56,8 @@ export class AuthController {
   @Post('refresh-token')
   async refreshToken(
     @Res({ passthrough: true }) res: Response,
-    @Body() response){
+    @Body() response,
+  ) {
     const tokens = await this.authService.refreshToken(response.refreshtoken);
 
     res.cookie('refreshToken', tokens.newRefreshToken, {
@@ -59,5 +66,15 @@ export class AuthController {
       sameSite: true,
     });
     return { accesstoken: tokens.newAccessToken };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('confirm-email/:code')
+  async confirmEmail(
+    @Query('email') email: string,
+    @Param('code') code: string,
+    @Res() res: Response,
+  ) {
+    return this.authService.confirmEmail(res, email, code);
   }
 }

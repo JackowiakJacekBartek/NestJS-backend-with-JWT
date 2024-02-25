@@ -1,6 +1,8 @@
 import {
   ConflictException,
+  HttpStatus,
   Injectable,
+  Req,
   Res,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -14,6 +16,11 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { jwtConstants } from './constants';
 import { MailService } from '../mail/mail.service';
+import { Request } from 'express'
+import { CreateUserDto } from 'src/common/dto/createUserDto';
+import * as crypto from 'crypto';
+import { Response } from 'express';
+
 
 @Injectable()
 export class AuthService {
@@ -25,7 +32,7 @@ export class AuthService {
     private mailService: MailService
   ) {}
 
-  async register(registerUserDto: RegisterUserDto) {
+  async register(registerUserDto: RegisterUserDto, request: Request) {
     const user = await this.userService.findByEmail(registerUserDto.email);
     if (user) {
       throw new UnauthorizedException();
@@ -37,7 +44,16 @@ export class AuthService {
     const password = bcrypt.hashSync(registerUserDto.password, salt);
     registerUserDto.password = password;
 
-    return this.userService.saveUser(registerUserDto);
+    //to mi sie nie podoba
+    const createUserDto = new CreateUserDto();
+    createUserDto.name = registerUserDto.name;
+    createUserDto.email = registerUserDto.email;
+    createUserDto.password = registerUserDto.password;
+    createUserDto.emailVerificationCode = this.generateVerificationCode(15);
+    createUserDto.isConfirmedEmail = false;
+
+    this.sendConfirmationEmail(request, createUserDto.emailVerificationCode, createUserDto.email);
+    return this.userService.saveUser(createUserDto);
   }
 
   async signIn(email: string, pass: string) {
@@ -45,6 +61,10 @@ export class AuthService {
 
     if (!user || !bcrypt.compareSync(pass, user.password)) {
       throw new UnauthorizedException();
+    }
+
+    if(user.isConfirmedEmail === false) {
+      throw new UnauthorizedException('Email has not been verified');
     }
 
     //Wyodrębnia ona właściwości z obiektu user. Konkretnie, wyodrębnia właściwość password i
@@ -118,7 +138,30 @@ export class AuthService {
     return null;
   }
 
-  async sendEmail() {
-    await this.mailService.sendConfirmationEmail('bartek35355@gmail.com', 'Hej bartek!')
+  async sendConfirmationEmail(request: Request, confirmationCode: string, targetEmail: string) {
+    const host = request.get('host'); // Pobierz adres hosta z żądania
+    const protocol = request.protocol; // Pobierz protokół (http lub https)
+    const confirmationLink = `${protocol}://${host}/auth/confirm-email/${confirmationCode}?email=${targetEmail}`;
+    await this.mailService.sendConfirmationEmail(targetEmail, confirmationLink)
+  }
+
+  generateVerificationCode(length: number): string {
+    return crypto.randomBytes(Math.ceil(length / 2)).toString('hex').slice(0, length);
+  }
+
+  async confirmEmail(@Res() res: Response, email: string, code: string){
+    const user = await this.userService.findByEmail(email);
+    if (user && user.emailVerificationCode === code) {
+
+      //update emailVerificationCode to true na bazie
+      this.userService.confirmEmail(email)
+
+      return res.status(HttpStatus.OK).json({
+        message: 'Email has been confirmed',
+      });
+    }
+    else{
+      throw new UnauthorizedException();
+    }
   }
 }

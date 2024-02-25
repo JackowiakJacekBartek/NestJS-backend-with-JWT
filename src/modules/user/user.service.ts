@@ -30,6 +30,12 @@ export class UserService {
     return result;
   }
 
+  async confirmEmail(email: string){
+    let user = await this.findByEmail(email);
+    user.isConfirmedEmail = true;
+    return await this.userRepository.save(user);
+  }
+
   async updateUserById(id: number, user: Partial<UpdateUserDto>) {
     const existingUser = await this.userRepository.findOne({ where: { id } });
     if (existingUser) {

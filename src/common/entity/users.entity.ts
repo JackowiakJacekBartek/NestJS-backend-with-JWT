@@ -14,4 +14,10 @@ export class User {
 
   @Column()
   password: string;
+
+  @Column()
+  emailVerificationCode: string;
+
+  @Column()
+  isConfirmedEmail: boolean;
 }

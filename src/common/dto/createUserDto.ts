@@ -1,4 +1,4 @@
-import { IsEmail, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsNumber, IsString } from 'class-validator';
 import { Unique } from 'typeorm';
 
 @Unique(['email'])
@@ -11,4 +11,10 @@ export class CreateUserDto {
 
   @IsString()
   password: string;
+
+  @IsString()
+  emailVerificationCode: string;
+
+  @IsBoolean()
+  isConfirmedEmail: boolean;
 }
