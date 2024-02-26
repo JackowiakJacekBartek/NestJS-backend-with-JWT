@@ -18,8 +18,10 @@ import {
 import { PlayerService } from './player.service';
 import { CreatePlayerDto } from 'src/common/dto/createPlayerDto';
 import { Player } from 'src/common/interfaces/player.interface';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('player')
+@ApiTags('players')
+@Controller('players')
 export class PlayerController {
   constructor(private readonly playerService: PlayerService) {}
 

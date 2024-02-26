@@ -20,4 +20,7 @@ export class User {
 
   @Column()
   isConfirmedEmail: boolean;
+
+  @Column()
+  accountCreated: Date;
 }

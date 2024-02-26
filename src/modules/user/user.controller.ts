@@ -3,7 +3,10 @@ import { UserService } from './user.service';
 import { UpdateUserDto } from 'src/common/dto/updateUserDto';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthGuardAccessToken } from 'src/common/auth/auth.guardaccesstoken';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { Request as RequestExpress } from 'express';
 
+@ApiTags('users')
 @Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}
@@ -20,6 +23,8 @@ export class UserController {
   // }
 
   @UseGuards(AuthGuardAccessToken)
+  @ApiBearerAuth()
+  @ApiBody({ type: UpdateUserDto })
   @Post('update-profile') 
   UpdateUserById(
     @Request() req,
@@ -35,8 +40,9 @@ export class UserController {
     }
 
   @UseGuards(AuthGuardAccessToken)
-  @Get('profile')
-  getProfile(@Request() req) {
+  @ApiBearerAuth()
+  @Get('accesstoken-info')
+  getProfile(@Request() req : RequestExpress) {
     return req.user;
   }
 }

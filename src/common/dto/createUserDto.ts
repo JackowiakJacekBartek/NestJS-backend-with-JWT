@@ -1,4 +1,4 @@
-import { IsBoolean, IsEmail, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsDate, IsEmail, IsNumber, IsString } from 'class-validator';
 import { Unique } from 'typeorm';
 
 @Unique(['email'])
@@ -17,4 +17,7 @@ export class CreateUserDto {
 
   @IsBoolean()
   isConfirmedEmail: boolean;
+
+  @IsDate()
+  accountCreated: Date;
 }

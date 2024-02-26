@@ -51,6 +51,7 @@ export class AuthService {
     createUserDto.password = registerUserDto.password;
     createUserDto.emailVerificationCode = this.generateVerificationCode(15);
     createUserDto.isConfirmedEmail = false;
+    createUserDto.accountCreated = new Date();
 
     this.sendConfirmationEmail(request, createUserDto.emailVerificationCode, createUserDto.email);
     return this.userService.saveUser(createUserDto);
