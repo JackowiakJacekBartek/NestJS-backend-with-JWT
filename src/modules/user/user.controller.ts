@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, Request, UnauthorizedException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from 'src/common/dto/updateUserDto';
-import { AuthGuard } from '@nestjs/passport';
 import { AuthGuardAccessToken } from 'src/common/auth/auth.guardaccesstoken';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { Request as RequestExpress } from 'express';
@@ -25,8 +24,8 @@ export class UserController {
   @UseGuards(AuthGuardAccessToken)
   @ApiBearerAuth()
   @ApiBody({ type: UpdateUserDto })
-  @Post('update-profile') 
-  UpdateUserById(
+  @Post('update-login') 
+  updateLoginByEmail(
     @Request() req,
     @Body() updateUserDto: UpdateUserDto){
       
@@ -36,7 +35,7 @@ export class UserController {
       // }
     
       // Jeśli identyfikatory są zgodne, można wywołać metodę serwisu do aktualizacji użytkownika
-      return this.userService.updateUserById(req.user.id, updateUserDto);
+      return this.userService.updateLoginByEmail(req.user.email, updateUserDto);
     }
 
   @UseGuards(AuthGuardAccessToken)
@@ -44,5 +43,10 @@ export class UserController {
   @Get('accesstoken-info')
   getProfile(@Request() req : RequestExpress) {
     return req.user;
+  }
+
+  @Get('test')
+  updateUserData() {
+    return this.userService.saveFullName(4);
   }
 }

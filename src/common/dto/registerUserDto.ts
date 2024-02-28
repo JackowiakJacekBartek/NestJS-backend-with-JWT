@@ -8,7 +8,7 @@ export class RegisterUserDto {
 
   @ApiProperty({ type: String, description: "name"})
   @IsString()
-  name: string;
+  login: string;
 
   @ApiProperty({ type: String, description: "email"})
   @IsEmail()

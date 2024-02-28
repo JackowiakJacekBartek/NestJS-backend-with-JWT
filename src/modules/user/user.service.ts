@@ -1,15 +1,19 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/common/entity/users.entity';
+import { User } from 'src/common/entity/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from 'src/common/dto/createUserDto';
 import { UpdateUserDto } from 'src/common/dto/updateUserDto';
+import { UserData } from 'src/common/entity/userdata.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(UserData)
+    private userDataRepository: Repository<UserData>,
+
   ) {}
 
   async saveUser(user: CreateUserDto) {
@@ -36,17 +40,50 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-  async updateUserById(id: number, user: Partial<UpdateUserDto>) {
-    const existingUser = await this.userRepository.findOne({ where: { id } });
+  async updateLoginByEmail(email: string, user: Partial<UpdateUserDto>) {
+    const existingUser = await this.userRepository.findOne({ where: { email } });
     if (existingUser) {
       if (Object.keys(user).length > 0) {
-        await this.userRepository.update(id, user);
-        return await this.userRepository.findOne({ where: { id } });
+        await this.userRepository.update(existingUser.id, user);
+        return await this.userRepository.findOne({ where: { email } });
       } else {
         throw new BadRequestException();
       }
     } else {
       throw new NotFoundException();
+    }
+  }
+
+  async saveFullName(id: number) {
+    // Pobierz użytkownika
+    let existingUser = await this.userRepository.findOne({ where: { id }, relations: ['userData'] });
+  
+    // Sprawdź, czy użytkownik istnieje
+    if (existingUser) {
+      // Sprawdź, czy istnieją dane userData dla tego użytkownika
+      let userData = await this.userDataRepository.findOne({ where: { user: existingUser } });
+  
+      // Jeśli nie ma danych userData, utwórz nowy obiekt UserData
+      // if (!userData) {
+      //   userData = new UserData();
+      //   userData.user = existingUser;
+      // }
+
+      if (!userData) {
+        userData = new UserData();
+        existingUser.userData = userData
+      }
+  
+      // Ustaw nową wartość dla fullName
+      userData.fullName = 'azzzzzzzzzz';
+  
+      // Zapisz dane userData
+      await this.userDataRepository.save(userData);
+      await this.userRepository.save(existingUser);
+
+      return await this.userRepository.findOne({ where: { id }, relations: ['userData'] });
+    } else {
+      console.log('User not found');
     }
   }
 }

@@ -7,7 +7,7 @@ import { jwtConstants } from './constants';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from '../../common/strategy/local.strategy';
 import { JwtStrategy } from '../../common/strategy/jwt.strategy';
-import { RefreshToken } from 'src/common/entity/refreshtokens';
+import { RefreshToken } from 'src/common/entity/refreshtoken.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailModule } from '../mail/mail.module';
 

@@ -5,5 +5,5 @@ export class UpdateUserDto {
 
   @IsString()
   @ApiProperty()
-  name: string;
+  login: string;
 }

@@ -11,7 +11,7 @@ import { RegisterUserDto } from 'src/common/dto/registerUserDto';
 import { UserService } from 'src/modules/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
-import { RefreshToken } from 'src/common/entity/refreshtokens';
+import { RefreshToken } from 'src/common/entity/refreshtoken.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { jwtConstants } from './constants';
@@ -46,7 +46,7 @@ export class AuthService {
 
     //to mi sie nie podoba
     const createUserDto = new CreateUserDto();
-    createUserDto.name = registerUserDto.name;
+    createUserDto.login = registerUserDto.login;
     createUserDto.email = registerUserDto.email;
     createUserDto.password = registerUserDto.password;
     createUserDto.emailVerificationCode = this.generateVerificationCode(15);

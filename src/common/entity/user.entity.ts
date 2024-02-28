@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, Unique, JoinColumn, OneToOne } from 'typeorm';
+import { UserData } from './userdata.entity';
 
 @Entity()
 @Unique(['email'])
@@ -7,7 +8,7 @@ export class User {
   id: number;
 
   @Column()
-  name: string;
+  login: string;
 
   @Column()
   email: string;
@@ -23,4 +24,8 @@ export class User {
 
   @Column()
   accountCreated: Date;
+
+  @OneToOne(() => UserData, userData => userData.user) // Definicja relacji One-to-One
+  @JoinColumn()
+  userData: UserData;
 }

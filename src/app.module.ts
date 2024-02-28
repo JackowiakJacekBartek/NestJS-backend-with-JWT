@@ -3,11 +3,12 @@ import { LoggerMiddleware } from './common/logger/logger.middleware';
 import { PlayerModule } from './modules/player/player.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './modules/user/user.module';
-import { User } from './common/entity/users.entity';
+import { User } from './common/entity/user.entity';
 import { AuthModule } from './modules/auth/auth.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { RemovePasswordInterceptor } from './common/interceptors/removePasswordInterceptor';
-import { RefreshToken } from './common/entity/refreshtokens';
+import { RefreshToken } from './common/entity/refreshtoken.entity';
+import { UserData } from './common/entity/userdata.entity';
 
 @Module({
   providers: [
@@ -26,7 +27,7 @@ import { RefreshToken } from './common/entity/refreshtokens';
       username: 'bartek',
       password: 'bartek',
       database: 'nestjs',
-      entities: [User, RefreshToken],
+      entities: [User, RefreshToken, UserData],
       synchronize: true,
       extra: {
         trustServerCertificate: true, //bez tego nie chciał się połączyć

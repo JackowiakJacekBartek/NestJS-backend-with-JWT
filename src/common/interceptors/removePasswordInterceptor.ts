@@ -31,6 +31,12 @@ export class RemovePasswordInterceptor implements NestInterceptor {
     if (data && data.emailVerificationCode) {
       delete data.emailVerificationCode;
     }
+    if (data && data.id) {
+      delete data.id;
+    }
+    if (data && data.userData && data.userData.id) {
+      delete data.userData.id;
+    }
     return data;
   }
 }
