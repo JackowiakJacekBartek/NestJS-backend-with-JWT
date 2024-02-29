@@ -9,11 +9,20 @@ export class UserData {
     @Column({ nullable: true })
     fullName: string;
   
-    @Column({ nullable: true })
-    age: number;
+    @Column({ nullable: true, type: 'bigint' })
+    phoneNumber: number;
 
     @Column({ nullable: true })
     city: string;
+
+    @Column({ nullable: true })
+    place: string;
+
+    @Column({ nullable: true })
+    salary: number;
+
+    @Column({ nullable: true })
+    birthDate: Date;
   
     @OneToOne(() => User, user => user.userData)
     user: User;

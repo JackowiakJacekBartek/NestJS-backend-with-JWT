@@ -27,7 +27,7 @@ import { UserData } from './common/entity/userdata.entity';
       username: 'bartek',
       password: 'bartek',
       database: 'nestjs',
-      entities: [User, RefreshToken, UserData],
+      autoLoadEntities: true,
       synchronize: true,
       extra: {
         trustServerCertificate: true, //bez tego nie chciał się połączyć

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/common/entity/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from 'src/common/dto/createUserDto';
-import { UpdateUserDto } from 'src/common/dto/updateUserDto';
+import { UpdateLoginDto, UpdateUserDataDto } from 'src/common/dto/updateUserDto';
 import { UserData } from 'src/common/entity/userdata.entity';
 
 @Injectable()
@@ -40,7 +40,7 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-  async updateLoginByEmail(email: string, user: Partial<UpdateUserDto>) {
+  async updateLoginByEmail(email: string, user: Partial<UpdateLoginDto>) {
     const existingUser = await this.userRepository.findOne({ where: { email } });
     if (existingUser) {
       if (Object.keys(user).length > 0) {
@@ -54,7 +54,8 @@ export class UserService {
     }
   }
 
-  async saveFullName(id: number) {
+  async updateUserData(id: number, updateUserDataDto: UpdateUserDataDto) {
+
     // Pobierz użytkownika
     let existingUser = await this.userRepository.findOne({ where: { id }, relations: ['userData'] });
   
@@ -74,8 +75,8 @@ export class UserService {
         existingUser.userData = userData
       }
   
-      // Ustaw nową wartość dla fullName
-      userData.fullName = 'azzzzzzzzzz';
+      // Ustaw nowe wartości dla pól UserData
+      Object.assign(userData, updateUserDataDto);
   
       // Zapisz dane userData
       await this.userDataRepository.save(userData);

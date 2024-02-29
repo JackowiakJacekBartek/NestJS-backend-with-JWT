@@ -61,7 +61,7 @@ export class AuthController {
   @ApiBody({ type: RefreshTokenDto })
   async refreshToken(
     @Res({ passthrough: true }) res: Response,
-    @Body() response : RefreshTokenDto,
+    @Body(new ValidationPipe()) response : RefreshTokenDto,
   ) {
     const tokens = await this.authService.refreshToken(response.refreshtoken);
 
