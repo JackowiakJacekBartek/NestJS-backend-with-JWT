@@ -16,7 +16,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
+  @Column({ nullable: true })
   emailVerificationCode: string;
 
   @Column()
@@ -25,7 +25,7 @@ export class User {
   @Column()
   accountCreated: Date;
 
-  @OneToOne(() => UserData, userData => userData.user) // Definicja relacji One-to-One
+  @OneToOne(() => UserData, userData => userData.user, { cascade: true }) // Definicja relacji One-to-One
   @JoinColumn()
   userData: UserData;
 }

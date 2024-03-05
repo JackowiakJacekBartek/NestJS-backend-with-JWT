@@ -24,31 +24,6 @@ import { Request as RequestExpress } from 'express';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  // @Post()
-  // createUser(@Body(new ValidationPipe()) createUserDto: CreateUserDto) {
-  //   return this.userService.saveUser(createUserDto);
-  // }
-
-  // @UseGuards(AuthGuard)
-  // @Get('all')
-  // getAllUsers() {
-  //   return this.userService.getAllUsers();
-  // }
-
-  @UseGuards(AuthGuardAccessToken)
-  @ApiBearerAuth()
-  @ApiBody({ type: UpdateLoginDto })
-  @Post('update-login')
-  updateLoginByEmail(@Request() req, @Body() updateLoginDto: UpdateLoginDto) {
-    // Sprawdź, czy identyfikator użytkownika w żądaniu jest zgodny z identyfikatorem użytkownika w tokenu JWT
-    // if (req.user.id !== id) {
-    //   throw new UnauthorizedException();
-    // }
-
-    // Jeśli identyfikatory są zgodne, można wywołać metodę serwisu do aktualizacji użytkownika
-    return this.userService.updateLoginByEmail(req.user.email, updateLoginDto);
-  }
-
   @UseGuards(AuthGuardAccessToken)
   @ApiBearerAuth()
   @Get('accesstoken-info')
@@ -56,12 +31,21 @@ export class UserController {
     return req.user;
   }
 
-  @Post('update-userdata/:id')
+  @UseGuards(AuthGuardAccessToken)
+  @ApiBearerAuth()
+  @Post('update-userdata')
   @ApiBody({ type: UpdateUserDataDto })
   updateUserData(
+    @Request() req,
     @Body(new ValidationPipe()) updateUserDataDto: UpdateUserDataDto,
-    @Param('id') id: number,
   ) {
-    return this.userService.updateUserData(id, updateUserDataDto);
+    return this.userService.updateUserData(req.user.id, updateUserDataDto);
+  }
+
+  @Get('userdata/:id')
+  getUserdata(
+    @Param('id', ParseIntPipe) id: number
+  ){
+    return this.userService.getUserDataById(id);
   }
 }

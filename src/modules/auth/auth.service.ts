@@ -46,9 +46,8 @@ export class AuthService {
 
     //to mi sie nie podoba
     const createUserDto = new CreateUserDto();
-    createUserDto.login = registerUserDto.login;
-    createUserDto.email = registerUserDto.email;
-    createUserDto.password = registerUserDto.password;
+    Object.assign(createUserDto, registerUserDto);
+    
     createUserDto.emailVerificationCode = this.generateVerificationCode(15);
     createUserDto.isConfirmedEmail = false;
     createUserDto.accountCreated = new Date();

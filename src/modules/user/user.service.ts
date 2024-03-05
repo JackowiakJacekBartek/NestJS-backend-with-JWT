@@ -10,9 +10,7 @@ import { UserData } from 'src/common/entity/userdata.entity';
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>,
-    @InjectRepository(UserData)
-    private userDataRepository: Repository<UserData>,
+    private userRepository: Repository<User>
 
   ) {}
 
@@ -29,62 +27,46 @@ export class UserService {
   }
 
   async findUserById(id: number) {
-    const user = await this.userRepository.findOne({ where: { id } });
-    const { password, ...result } = user;
-    return result;
+    return await this.userRepository.findOne({ where: { id }, relations: ['userData'] });
+  }
+
+  async getUserDataById(id: number) {
+    let existingUser = await this.findUserById(id);
+    if(!existingUser){
+      throw new NotFoundException();
+    }
+    return existingUser.userData;
   }
 
   async confirmEmail(email: string){
     let user = await this.findByEmail(email);
     user.isConfirmedEmail = true;
+    user.emailVerificationCode = null;
     return await this.userRepository.save(user);
   }
 
-  async updateLoginByEmail(email: string, user: Partial<UpdateLoginDto>) {
-    const existingUser = await this.userRepository.findOne({ where: { email } });
-    if (existingUser) {
-      if (Object.keys(user).length > 0) {
-        await this.userRepository.update(existingUser.id, user);
-        return await this.userRepository.findOne({ where: { email } });
-      } else {
-        throw new BadRequestException();
-      }
-    } else {
-      throw new NotFoundException();
-    }
-  }
-
   async updateUserData(id: number, updateUserDataDto: UpdateUserDataDto) {
-
     // Pobierz użytkownika
-    let existingUser = await this.userRepository.findOne({ where: { id }, relations: ['userData'] });
+    let existingUser = await this.findUserById(id);
   
     // Sprawdź, czy użytkownik istnieje
     if (existingUser) {
-      // Sprawdź, czy istnieją dane userData dla tego użytkownika
-      let userData = await this.userDataRepository.findOne({ where: { user: existingUser } });
-  
-      // Jeśli nie ma danych userData, utwórz nowy obiekt UserData
-      // if (!userData) {
-      //   userData = new UserData();
-      //   userData.user = existingUser;
-      // }
 
-      if (!userData) {
-        userData = new UserData();
+      if (!existingUser.userData) {
+        let userData = new UserData();
         existingUser.userData = userData
       }
   
       // Ustaw nowe wartości dla pól UserData
-      Object.assign(userData, updateUserDataDto);
+      Object.assign(existingUser.userData, updateUserDataDto);
   
       // Zapisz dane userData
-      await this.userDataRepository.save(userData);
+      //await this.userDataRepository.save(userData);
       await this.userRepository.save(existingUser);
 
-      return await this.userRepository.findOne({ where: { id }, relations: ['userData'] });
+      return existingUser.userData;
     } else {
-      console.log('User not found');
+      throw new UnauthorizedException();
     }
   }
 }
